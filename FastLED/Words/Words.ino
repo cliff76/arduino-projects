@@ -67,25 +67,28 @@ void fade(int stripIdx, int colorIdx) {
   }
 }
 
-void displayLetter(String theLetter, int letterDuration) {
-  int lightIndex = letterIndex.indexOf(theLetter);
+void displayLetter(char theLetter, int letterDuration) {
+  if(isSpace(theLetter)) {
+    return;
+  }
+  int lightIndex = letterIndex.indexOf(String(theLetter));
   fade(lightIndex,0);
 }
-void writeWord(String theword,int letterDuration)
+void writeWords(String theword,int letterDuration)
 {
   int stringLen = theword.length()+1;
   char char_array[stringLen];
   theword.toCharArray(char_array,stringLen);
   for(int i=0;i<stringLen-1;i++)
   {
-    displayLetter(String(char_array[i]),letterDuration);
+    displayLetter(char_array[i],letterDuration);
     delay(1000);
   }
 }
 
 void loop() {
-  fade(ALL_LIGHTS, 1);
-  writeWord("HELLO", 1);
+  fade(ALL_LIGHTS, 2);
+  writeWords("HELLO THIS IS WILL", 1);
   delay(1000);
 }
 //Instead of "leds[0] = CRGB::Red;" you can use the RGB values like so
