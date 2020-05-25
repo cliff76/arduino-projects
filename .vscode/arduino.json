@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "StrangerThings/StrangerThings.ino",
+    "port": "/dev/tty.usbserial-A603R48T"
+}
