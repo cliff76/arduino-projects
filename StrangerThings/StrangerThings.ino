@@ -46,7 +46,7 @@ CRGB colors[3] = {CRGB::Red, CRGB::Green, CRGB::Blue};
 int DELAY = 50;
 
 
-#define CALL_SIGN "will byers"
+#define CALL_SIGN "willbyers"
 const int led = 13;
 MOVI recognizer(true);            // Get a MOVI object, true enables serial monitor interface, rx and tx can be passed as parameters for alternate communication pins on AVR architecture
 
@@ -63,8 +63,14 @@ void setup()
   // The training functions are "lazy" and only do something if there are changes. 
   // They can be commented out to save memory and startup time once training has been performed.
   recognizer.callSign(CALL_SIGN); // Train callsign Arduino (may take 20 seconds)
-  recognizer.addSentence("Are you there"); // Add sentence 1
-  recognizer.addSentence("Go dark");            // Add sentence 2
+  String allTraining[3] = {
+    "Are you there",
+    "Are you in trouble",
+    "talk to me"
+  };
+  for(int i = 0; i < 3; i++) {
+    recognizer.addSentence(allTraining[i]);
+  }
   Serial.println("Training...");
   recognizer.train();                           // Train (may take 20seconds) 
   //*/
@@ -75,7 +81,7 @@ void setup()
   // Set either with either MALE_VOICE or FEMALE_VOICE constants
   recognizer.setVoiceGender(MALE_VOICE);
   Serial.println("Prompting...");
-  String intro = String("Hello, my name is ") + String(CALL_SIGN) + String(". Say, are you there. Or say, go dark!");
+  String intro = String("Stranger Things. You can ask for ") + String(CALL_SIGN);
   recognizer.ask(intro);
 
   //  recognizer.setThreshold(5);      // uncomment and set to a higher value (valid range 2-95) if you have a problems due to a noisy environment.
@@ -123,7 +129,7 @@ void loop() // run over and over
   signed int res=recognizer.poll(); // Get result from MOVI, 0 denotes nothing happened, negative values denote events (see docs)
   if (res==1) {                     // Sentence 1.
     digitalWrite(led, HIGH);        // Turn on LED
-    doCycles(2, colors[1]);
+    doCycles(2, colors[0]);
     recognizer.say("I am here!"); // Speak a sentence
   } 
   if (res==2) {                    // Sentence 2 
