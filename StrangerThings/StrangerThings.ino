@@ -1,34 +1,34 @@
-// MOVI(tm) Voice Dialog Shield - Version: Latest 
+// MOVI(tm) Voice Dialog Shield - Version: Latest
 #include <MOVIShield.h>
 
 /****************************************************************************
- * This is an example for the use of Audeme's MOVI(tm) Voice Control Shield *
- * ----> http://www.audeme.com/MOVI/                                        *
- * This code is inspired and maintained by Audeme but open to change        *
- * and organic development on GITHUB:                                       *
- * ----> https://github.com/audeme/MOVIArduinoAPI                           *
- * Written by Gerald Friedland for Audeme LLC.                              *
- * Contact: fractor@audeme.com                                              *
- * BSD license, all text above must be included in any redistribution.      *
+   This is an example for the use of Audeme's MOVI(tm) Voice Control Shield
+   ----> http://www.audeme.com/MOVI/
+   This code is inspired and maintained by Audeme but open to change
+   and organic development on GITHUB:
+   ----> https://github.com/audeme/MOVIArduinoAPI
+   Written by Gerald Friedland for Audeme LLC.
+   Contact: fractor@audeme.com
+   BSD license, all text above must be included in any redistribution.
  ****************************************************************************
- *
- * This basic example shows how to use MOVI(tm)'s API to train the call 
- * sign "Arduino" and two sentences. When the sentences are recognized
- * they switch on and off an LED on PIN D13. Many boards have a hardwired 
- * LED on board already connected to D13.
- *
- * Circuitry:
- * LED is pin D13 and GND
- * Arduino UNO R3, MEGA2560 R3, or Arduino Leonardo R3.
- * Connect speaker to MOVI.
- * IMPORTANT: Always use external power supply with MOVI. 
- * 
- * Other Arduino-compatible boards:  
- * Consult MOVI's User Manual before connecting MOVI.
- *
- * If you long-press the button on the MOVI (for a couple seconds), 
- * MOVI will revert back to the call sign and sentences trained here.
- */
+
+   This basic example shows how to use MOVI(tm)'s API to train the call
+   sign "Arduino" and two sentences. When the sentences are recognized
+   they switch on and off an LED on PIN D13. Many boards have a hardwired
+   LED on board already connected to D13.
+
+   Circuitry:
+   LED is pin D13 and GND
+   Arduino UNO R3, MEGA2560 R3, or Arduino Leonardo R3.
+   Connect speaker to MOVI.
+   IMPORTANT: Always use external power supply with MOVI.
+
+   Other Arduino-compatible boards:
+   Consult MOVI's User Manual before connecting MOVI.
+
+   If you long-press the button on the MOVI (for a couple seconds),
+   MOVI will revert back to the call sign and sentences trained here.
+*/
 
 #include "MOVIShield.h"     // Include MOVI library, needs to be *before* the next #include
 
@@ -48,11 +48,11 @@ int DELAY = 50;
 
 #define CALL_SIGN "willbyers"
 #define ALL_LIGHTS -1
-String letterIndex = "--ABC-DEFG-H------Q-P-O-NM-LKJI-----RSTU-VWX-Y-Z--";
+String letterIndex = "ABC--DEFG-H------Q-PO-NM-LKJI---RST-UV-WX--YZ-----";
 const int led = 13;
 MOVI recognizer(true);            // Get a MOVI object, true enables serial monitor interface, rx and tx can be passed as parameters for alternate communication pins on AVR architecture
 
-void setup()  
+void setup()
 {
   Serial.begin(9600);
   FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
@@ -61,53 +61,99 @@ void setup()
   recognizer.init();      // Initialize MOVI (waits for it to boot)
 
   //*
-  // Note: training can only be performed in setup(). 
-  // The training functions are "lazy" and only do something if there are changes. 
+  // Note: training can only be performed in setup().
+  // The training functions are "lazy" and only do something if there are changes.
   // They can be commented out to save memory and startup time once training has been performed.
   recognizer.callSign(CALL_SIGN); // Train callsign Arduino (may take 20 seconds)
-  String allTraining[3] = {
+  String allTraining[5] = {
     "Are you there",
+    "Where are you",
+    "Say something",
     "Are you in trouble",
     "talk to me"
   };
-  for(int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     recognizer.addSentence(allTraining[i]);
   }
   Serial.println("Training...");
-  recognizer.train();                           // Train (may take 20seconds) 
+  recognizer.train();                           // Train (may take 20seconds)
   //*/
-  if (recognizer.getFirmwareVersion()>=1.1f) { // With 1.1 firmware, we can use the better synthesizer
-      recognizer.setSynthesizer(SYNTH_ESPEAK);
-//      recognizer.setSynthesizer(SYNTH_PICO); // SYNTH_PICO does not support a male voice
+  if (recognizer.getFirmwareVersion() >= 1.1f) { // With 1.1 firmware, we can use the better synthesizer
+    recognizer.setSynthesizer(SYNTH_ESPEAK);
+    //      recognizer.setSynthesizer(SYNTH_PICO); // SYNTH_PICO does not support a male voice
   }
   // Set either with either MALE_VOICE or FEMALE_VOICE constants
   recognizer.setVoiceGender(MALE_VOICE);
   Serial.println("Prompting...");
   String intro = String("Stranger Things. You can ask for ") + String(CALL_SIGN);
-  recognizer.ask(intro);
+  recognizer.say(intro);
+//  writeWords("ABC DEF",1);
 
   //  recognizer.setThreshold(5);      // uncomment and set to a higher value (valid range 2-95) if you have a problems due to a noisy environment.
 }
 
+String replyFor(String replies[], int theLength) {
+  return replies[random(0, theLength - 1)];
+}
+
+String areYouThere[3] = {
+  "HELP ME",
+  "I AM SCARED",
+  "YES"
+};
+String whereAreYou[4] = {
+  "LOST",
+  "DONT KNOW",
+  "UPSIDE DOWN",
+  "RUNNING"
+};
+String saySomething[5] = {
+  "FIND MY MOM",
+  "HELP",
+  "FIND MIKE",
+  "RUN",
+  "SCARED"
+};
+String areYouInTrouble[4] = {
+  "COLD",
+  "YES",
+  "HURT",
+  "NO"
+};
+String talkToMe[4] = {
+  "HELP",
+  "NEED WATER",
+  "WHERE IS ELEVEN",
+  "DEMOGORGON"
+};
 void loop() // run over and over
 {
-  signed int res=recognizer.poll(); // Get result from MOVI, 0 denotes nothing happened, negative values denote events (see docs)
-  if (res==1) {                     // Sentence 1.
+  signed int res = recognizer.poll(); // Get result from MOVI, 0 denotes nothing happened, negative values denote events (see docs)
+  if (res == 1) {                   // Are you there?
     recognizer.say("He is here!");
-    writeWords("YES",1);
-  } else if (res==2) {                    // Sentence 2 
+    fade(ALL_LIGHTS,1);
+    writeWords(replyFor(areYouThere,3), 1);
+  } else if (res == 2) {                  // Where Are you
     recognizer.say("You cannot talk to Will!"); // Speak a sentence
-    writeWords("HELP ME",1);
-  } else if (res==3) {                    // Sentence 2 
+    fade(ALL_LIGHTS,0);
+    writeWords(replyFor(whereAreYou,4), 1);
+  } else if (res == 3) {                  // Say Something
+    fade(ALL_LIGHTS,2);
+    writeWords(replyFor(saySomething,5), 1);
+  } else if (res == 4) {                  // Are you in trouble
     recognizer.say("Haha haha haha haha"); // Speak a sentence
-    writeWords("I SEE DEMAGORGONS",1);
+    fade(ALL_LIGHTS,0);
+    writeWords(replyFor(areYouInTrouble,3), 1);
+  } else if (res == 5) {                  // talk to me
+    fade(ALL_LIGHTS,1);
+    writeWords(replyFor(talkToMe,4), 1);
   }
   Serial.println("Polling...");
 }
 
 void blink()
 {
-  for(int i=0; i<3; i++) {
+  for (int i = 0; i < 3; i++) {
     digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);                       // wait for a second
     digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
@@ -116,7 +162,7 @@ void blink()
 }
 
 void cycle(CRGB whichColor) {
-  for(int i=0; i< NUM_LEDS; i++){
+  for (int i = 0; i < NUM_LEDS; i++) {
     // Turn the LED on, then pause
     leds[i] = whichColor;
     FastLED.show();
@@ -129,24 +175,24 @@ void cycle(CRGB whichColor) {
 }
 
 void doCycles(int howMany, CRGB whichColor) {
-  for(int i=0; i<howMany; i++) {
+  for (int i = 0; i < howMany; i++) {
     cycle(whichColor);
   }
 }
-  
+
 void colorAll(CRGB whichColor) {
-  for(int i=0; i< NUM_LEDS; i++){
+  for (int i = 0; i < NUM_LEDS; i++) {
     // Turn the LED on, then pause
     leds[i] = whichColor;
   }
-    FastLED.show();
+  FastLED.show();
 }
 
 void fade(int stripIdx, int colorIdx) {
-  for(int i=0; i < 256; i++ ) {
-    uint8_t result = 255-ease8InOutCubic(i);
+  for (int i = 0; i < 256; i++ ) {
+    uint8_t result = 255 - ease8InOutCubic(i);
     CRGB theColor;
-    switch(colorIdx) {
+    switch (colorIdx) {
       case 1:
         theColor = CRGB(0, result, 0);
         break;
@@ -157,7 +203,7 @@ void fade(int stripIdx, int colorIdx) {
         theColor = CRGB(result, 0, 0);
         break;
     }
-    if(stripIdx < 0) {
+    if (stripIdx < 0) {
       colorAll(theColor);
     } else {
       leds[stripIdx] = theColor;
@@ -168,21 +214,23 @@ void fade(int stripIdx, int colorIdx) {
 }
 
 void displayLetter(char theLetter, int letterDuration) {
-  if(isSpace(theLetter)) {
+  if (isSpace(theLetter)) {
     return;
   }
-  int lightIndex = letterIndex.indexOf(String(theLetter));
-  fade(lightIndex,0);
+  int lightIndex = (NUM_LEDS-1) - letterIndex.indexOf(String(theLetter));
+  //For debbugging
+  //recognizer.say(String(theLetter));
+  fade(lightIndex, 0);
 }
 
-void writeWords(String theword,int letterDuration)
+void writeWords(String theword, int letterDuration)
 {
-  int stringLen = theword.length()+1;
+  int stringLen = theword.length() + 1;
   char char_array[stringLen];
-  theword.toCharArray(char_array,stringLen);
-  for(int i=0;i<stringLen-1;i++)
+  theword.toCharArray(char_array, stringLen);
+  for (int i = 0; i < stringLen - 1; i++)
   {
-    displayLetter(char_array[i],letterDuration);
+    displayLetter(char_array[i], letterDuration);
     delay(1000);
   }
 }
