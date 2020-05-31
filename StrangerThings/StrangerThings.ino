@@ -93,7 +93,7 @@ void setup()
 }
 
 String replyFor(String replies[], int theLength) {
-  return replies[random(0, theLength - 1)];
+  return replies[random(0, theLength)];
 }
 
 String areYouThere[3] = {
@@ -148,7 +148,6 @@ void loop() // run over and over
     fade(ALL_LIGHTS,1);
     writeWords(replyFor(talkToMe,4), 1);
   }
-  Serial.println("Polling...");
 }
 
 void blink()
