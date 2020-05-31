@@ -74,6 +74,7 @@ void displayLetter(char theLetter, int letterDuration) {
   int lightIndex = letterIndex.indexOf(String(theLetter));
   fade(lightIndex,0);
 }
+
 void writeWords(String theword,int letterDuration)
 {
   int stringLen = theword.length()+1;
@@ -91,7 +92,3 @@ void loop() {
   writeWords("HELLO THIS IS WILL", 1);
   delay(1000);
 }
-//Instead of "leds[0] = CRGB::Red;" you can use the RGB values like so
-//leds[0].red = 255;
-//leds[0].green = 0;
-//leds[0].blue = 0;

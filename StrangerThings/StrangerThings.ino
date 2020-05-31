@@ -47,6 +47,8 @@ int DELAY = 50;
 
 
 #define CALL_SIGN "willbyers"
+#define ALL_LIGHTS -1
+String letterIndex = "--ABC-DEFG-H------Q-P-O-NM-LKJI-----RSTU-VWX-Y-Z--";
 const int led = 13;
 MOVI recognizer(true);            // Get a MOVI object, true enables serial monitor interface, rx and tx can be passed as parameters for alternate communication pins on AVR architecture
 
@@ -87,6 +89,22 @@ void setup()
   //  recognizer.setThreshold(5);      // uncomment and set to a higher value (valid range 2-95) if you have a problems due to a noisy environment.
 }
 
+void loop() // run over and over
+{
+  signed int res=recognizer.poll(); // Get result from MOVI, 0 denotes nothing happened, negative values denote events (see docs)
+  if (res==1) {                     // Sentence 1.
+    recognizer.say("He is here!");
+    writeWords("YES",1);
+  } else if (res==2) {                    // Sentence 2 
+    recognizer.say("You cannot talk to Will!"); // Speak a sentence
+    writeWords("HELP ME",1);
+  } else if (res==3) {                    // Sentence 2 
+    recognizer.say("Haha haha haha haha"); // Speak a sentence
+    writeWords("I SEE DEMAGORGONS",1);
+  }
+  Serial.println("Polling...");
+}
+
 void blink()
 {
   for(int i=0; i<3; i++) {
@@ -124,17 +142,47 @@ void colorAll(CRGB whichColor) {
     FastLED.show();
 }
 
-void loop() // run over and over
+void fade(int stripIdx, int colorIdx) {
+  for(int i=0; i < 256; i++ ) {
+    uint8_t result = 255-ease8InOutCubic(i);
+    CRGB theColor;
+    switch(colorIdx) {
+      case 1:
+        theColor = CRGB(0, result, 0);
+        break;
+      case 2:
+        theColor = CRGB(0, 0, result);
+        break;
+      default:
+        theColor = CRGB(result, 0, 0);
+        break;
+    }
+    if(stripIdx < 0) {
+      colorAll(theColor);
+    } else {
+      leds[stripIdx] = theColor;
+      FastLED.show();
+    }
+    delay(10);
+  }
+}
+
+void displayLetter(char theLetter, int letterDuration) {
+  if(isSpace(theLetter)) {
+    return;
+  }
+  int lightIndex = letterIndex.indexOf(String(theLetter));
+  fade(lightIndex,0);
+}
+
+void writeWords(String theword,int letterDuration)
 {
-  signed int res=recognizer.poll(); // Get result from MOVI, 0 denotes nothing happened, negative values denote events (see docs)
-  if (res==1) {                     // Sentence 1.
-    digitalWrite(led, HIGH);        // Turn on LED
-    doCycles(2, colors[0]);
-    recognizer.say("I am here!"); // Speak a sentence
-  } 
-  if (res==2) {                    // Sentence 2 
-    digitalWrite(led, LOW);        // Turn off LED
-    recognizer.say("as you wish!"); // Speak a sentence
-    colorAll(CRGB::Black);
+  int stringLen = theword.length()+1;
+  char char_array[stringLen];
+  theword.toCharArray(char_array,stringLen);
+  for(int i=0;i<stringLen-1;i++)
+  {
+    displayLetter(char_array[i],letterDuration);
+    delay(1000);
   }
 }
